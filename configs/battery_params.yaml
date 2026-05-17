@@ -1,0 +1,38 @@
+# ── Cell Parameters (NMC 18650, generic) ──────────────────────────────────
+cell:
+  chemistry: NMC               # NMC | LFP | LCO | NCA
+  nominal_capacity_Ah: 2.5     # Ah
+  nominal_voltage_V: 3.6       # V
+  min_voltage_V: 2.5           # V  (cutoff)
+  max_voltage_V: 4.2           # V  (fully charged)
+  mass_g: 46.0
+  thermal_mass_J_K: 65.0       # J/K
+
+  # Equivalent Circuit Model — Thevenin 2RC
+  ecm:
+    R0_ohm: 0.015              # Internal resistance (Ω)
+    R1_ohm: 0.010              # RC branch 1
+    C1_F: 2500.0               # Capacitance branch 1
+    R2_ohm: 0.005              # RC branch 2
+    C2_F: 25000.0              # Capacitance branch 2
+
+  # Thermal model
+  thermal:
+    h_conv_W_m2K: 10.0         # Convection coefficient
+    surface_area_m2: 0.00413   # 18650 surface area
+    T_ambient_C: 25.0
+
+  # Aging / degradation
+  aging:
+    calendar_life_years: 10
+    cycle_life: 1000           # cycles to 80% SOH
+    EOL_SOH: 0.80              # End of Life threshold
+
+# ── State Estimation Limits ───────────────────────────────────────────────
+limits:
+  SOC_min: 0.0
+  SOC_max: 1.0
+  SOH_min: 0.0
+  SOH_max: 1.0
+  T_min_C: -20.0
+  T_max_C: 60.0

@@ -1,0 +1,34 @@
+# ── Pack Topology ─────────────────────────────────────────────────────────
+pack:
+  name: "EV_Pack_12S4P"
+  series: 12                   # Ns — cells in series (voltage scaling)
+  parallel: 4                  # Np — cells in parallel (capacity scaling)
+
+  # Derived (calculated automatically by the twin engine)
+  # nominal_voltage_V  = Ns × cell.nominal_voltage  = 43.2 V
+  # nominal_capacity_Ah = Np × cell.nominal_capacity = 10.0 Ah
+  # energy_kWh         ≈ 0.432 kWh (small demo pack)
+
+  # Cell variation (manufacturing spread — triggers imbalance)
+  cell_variation:
+    capacity_spread_pct: 2.0   # ± 2% capacity between cells
+    R0_spread_pct: 5.0         # ± 5% internal resistance
+
+# ── BMS Thresholds ────────────────────────────────────────────────────────
+bms:
+  overvoltage_V: 4.25          # OVP — triggers protection
+  undervoltage_V: 2.45         # UVP
+  overcurrent_charge_A: 12.0   # OCP charge (≈ 1.2C for 10 Ah pack)
+  overcurrent_discharge_A: 30.0
+  overtemperature_C: 55.0      # OTP
+  undertemperature_C: 0.0
+
+  balancing:
+    method: passive            # passive | active
+    threshold_mv: 20           # balance when ΔV > 20 mV between cells
+
+# ── Simulation Settings ───────────────────────────────────────────────────
+simulation:
+  dt_s: 1.0                    # time step (seconds)
+  duration_s: 3600             # default sim duration (1 hour)
+  C_rate: 1.0                  # charge/discharge rate (1C default)
