@@ -1,31 +1,48 @@
-# Digital Twin for Li-ion Battery Packs
+# Digital Twin — Li-ion Battery Packs
 
-A complete Python-based Digital Twin framework for Li-ion battery packs, covering:
-- Physics-based simulation (ECM, electrochemical models via PyBaMM)
-- State estimation: SOC, SOH, SOP, SOT
-- Machine learning: LSTM, TCN-LSTM, XGBoost, EKF/UKF
-- BMS simulation: cell balancing, protection
-- Real-time dashboard (Streamlit)
-- 3D pack visualization (PyVista)
-- REST API (FastAPI)
+**Multi-Physics Simulation · State Estimation · BMS — Python**
+
+A physics-based digital twin for Li-ion battery packs, built from scratch as a first
+digital twin project. The pack topology (Ns×Np) is fully configurable; all results
+shown are based on the NASA B0005 cell (18650 NMC, 2 Ah).
+
+---
+
+## What it does
+
+| Component | Description |
+|-----------|-------------|
+| **ECM 2RC** | Equivalent circuit model (R₀ + 2 RC branches) identified on NASA B0005 |
+| **EKF** | Extended Kalman Filter — real-time SOC estimation (single-cell) |
+| **SOH** | State of Health via Coulomb counting, cycle by cycle |
+| **RUL** | Remaining Useful Life estimate (Arrhenius model, temperature + C-rate) |
+| **Pack simulator** | Ns×Np cell grid with thermal model and inter-cell imbalance |
+| **BMS** | Overvoltage, undervoltage, overtemperature and low-SOC protection |
+| **Dashboard** | Streamlit — real-time plots, 3D pack view (Plotly), CSV export |
+| **REST API** | FastAPI — 10 endpoints (update, state, history, cells, reset…) |
 
 ---
 
 ## Project Structure
 
 ```
-battery-digital-twin/
-├── data/               # Raw & processed datasets (NASA, CALCE, Oxford)
-├── simulation/         # ECM, electrochemical, thermal, pack models
-├── estimation/         # SOC, SOH, SOP, SOT estimators
-├── ml/                 # Training pipelines, saved models, experiments
-├── bms/                # BMS logic: balancing, protection, controller
-├── digital_twin/       # Twin engine, sync loop, REST API
-├── visualization/      # Dashboard, 3D viewer, plots
-├── notebooks/          # Step-by-step Jupyter notebooks
-├── configs/            # YAML configuration files
-├── tests/              # Unit and integration tests
-└── docs/               # Architecture docs, reports
+digital-twin/
+├── estimation/
+│   ├── soc/kalman/ekf.py          # Extended Kalman Filter
+│   └── soh/physics/soh_estimator.py  # Coulomb counting + RUL
+├── simulation/
+│   └── pack/pack_simulator.py      # Ns×Np pack + thermal model
+├── digital_twin/
+│   ├── core/twin_engine.py         # Main orchestrator
+│   └── api/main.py                 # FastAPI REST API
+├── visualization/
+│   └── dashboard/app.py            # Streamlit dashboard
+├── ml/models/ecm_b0005.json        # Identified ECM parameters
+├── notebooks/                      # Step-by-step Jupyter notebooks
+├── configs/                        # YAML configuration files
+├── data/exports/                   # Simulation data exports (CSV)
+├── app.py                          # Streamlit Cloud entrypoint
+└── requirements.txt
 ```
 
 ---
@@ -33,46 +50,55 @@ battery-digital-twin/
 ## Quick Start
 
 ```bash
-# 1. Create virtual environment
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # Linux/Mac
-
-# 2. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Download datasets (see data/raw/*/README.md)
-
-# 4. Start with the notebooks (in order)
-jupyter lab notebooks/
+# Launch the dashboard
+streamlit run visualization/dashboard/app.py
+# or double-click lancer_dashboard.bat (Windows)
 ```
 
 ---
 
-## Learning Roadmap
+## Notebooks
 
-| Phase | Topic | Notebook |
-|-------|-------|----------|
-| 1 | Data exploration & visualization | 01_data_exploration |
-| 2 | ECM simulation (Thevenin 2RC) | 02_ecm_simulation |
-| 3 | SOC estimation with EKF | 03_soc_kalman |
-| 4 | SOC estimation with LSTM | 04_soc_lstm |
-| 5 | SOH estimation & RUL | 05_soh_estimation |
-| 6 | ML training pipeline | 06_ml_training_pipeline |
-| 7 | Pack simulation (12S4P) | 07_pack_simulation |
-| 8 | 3D visualization | 08_3d_visualization |
+| # | Topic |
+|---|-------|
+| 01 | Data exploration — NASA B0005 discharge cycles |
+| 02 | ECM 2RC simulation and parameter identification |
+| 03 | SOC estimation with Extended Kalman Filter |
 
 ---
 
-## Datasets
-| Dataset | Chemistry | Size | Best For |
-|---------|-----------|------|----------|
-| NASA PCoE (B0005-B0018) | LCO 18650 | ~8 MB | SOC, SOH, RUL baseline |
-| CALCE CS2 | LCO | ~20 MB | SOH degradation patterns |
-| Oxford | LFP pouch | ~50 MB | Calendar aging, LFP chemistry |
+## Dataset
+
+**NASA Battery Dataset — cell B0005** (NASA PCoE, 2007)
+- Chemistry: LCO/NMC 18650
+- Nominal capacity: 2.0 Ah
+- Protocol: 1C charge/discharge cycles at 25 °C
+- Used for: ECM identification (R₀, R₁, C₁, R₂, C₂, OCV polynomial)
 
 ---
 
-## Target Hardware (for context)
-This twin is designed around a **12S4P NMC pack** (43.2V / 10Ah) — representative
-of small EV / stationary storage systems studied at research centers.
+## Simulation results (4S×4P, 40 °C, 1C discharge, 180 s)
+
+| Metric | Initial | Final |
+|--------|---------|-------|
+| SOC | 100.0 % | 94.93 % |
+| V_pack | 16.20 V | 15.49 V |
+| V_cell | 4.050 V | 3.870 V |
+| T_max | 40.000 °C | 40.008 °C |
+| SOH (after 3 cycles) | — | 97.73 % |
+
+---
+
+## Tech stack
+
+`Python` `Streamlit` `FastAPI` `NumPy` `Pandas` `Plotly` `PyYAML`
+
+---
+
+## Deployment
+
+Dashboard live on **Streamlit Community Cloud** — topology (Ns, Np),
+temperature and C-rate are fully interactive.
