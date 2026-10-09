@@ -1,111 +1,142 @@
-# Digital Twin — Li-ion Battery Packs
+# Battery Twin — Li-ion Pack Simulation & Telemetry Diagnostics
 
-**Multi-Physics Simulation · State Estimation · BMS — Python**
+**Physics-based simulation · SOC estimation · Traceable battery-data analysis**
 
-A physics-based digital twin for Li-ion battery packs, built from scratch as a first
-digital twin project. The pack topology (Ns×Np) is fully configurable; all results
-shown are based on the NASA B0005 cell (18650 NMC, 2 Ah).
+**[Open the live dashboard](https://battery-twin-birane.vercel.app)**
 
----
+Battery Twin combines a configurable lithium-ion pack simulator with an independent CSV telemetry-analysis workflow. The current web interface uses React/TypeScript and a Python FastAPI backend. The original Streamlit dashboard remains available.
 
-## What it does
+This is an engineering demonstrator. Laboratory validation does not establish vehicle-level diagnostic accuracy or OEM qualification.
 
-| Component | Description |
-|-----------|-------------|
-| **ECM 2RC** | Equivalent circuit model (R₀ + 2 RC branches) identified on NASA B0005 |
-| **EKF** | Extended Kalman Filter — real-time SOC estimation (single-cell) |
-| **SOH** | State of Health via Coulomb counting, cycle by cycle |
-| **RUL** | Remaining Useful Life estimate (Arrhenius model, temperature + C-rate) |
-| **Pack simulator** | Ns×Np cell grid with thermal model and inter-cell imbalance |
-| **BMS** | Overvoltage, undervoltage, overtemperature and low-SOC protection |
-| **Dashboard** | Streamlit — real-time plots, 3D pack view (Plotly), CSV export |
-| **REST API** | FastAPI — 10 endpoints (update, state, history, cells, reset…) |
+## Two workflows
 
----
+| Workflow | Available features | Evidence and limits |
+|---|---|---|
+| **Simulation** | Configurable series/parallel topology, charge/discharge, electrical and thermal trends, cell inspection, simulated BMS alerts, CSV export | ECM parameters based on NASA B0005. Cells have fixed parameters; the simulator does not generate validated physical aging. |
+| **Telemetry diagnostics** | CSV validation, Ah/Wh integration, temperature and cell-voltage-spread threshold checks, sampling-gap detection, JSON report with source-file SHA-256 | Independent of the NASA simulation model. Threshold crossings support investigation; they do not certify a fault or battery health. |
 
-## Project Structure
+The simulation uses a two-RC equivalent circuit model and an Extended Kalman Filter for state-of-charge (SOC) estimation. The EKF includes the ohmic voltage term and a Joseph-form covariance update.
 
-```
-digital-twin/
-├── estimation/
-│   ├── soc/kalman/ekf.py          # Extended Kalman Filter
-│   └── soh/physics/soh_estimator.py  # Coulomb counting + RUL
-├── simulation/
-│   └── pack/pack_simulator.py      # Ns×Np pack + thermal model
-├── digital_twin/
-│   ├── core/twin_engine.py         # Main orchestrator
-│   └── api/main.py                 # FastAPI REST API
-├── visualization/
-│   └── dashboard/app.py            # Streamlit dashboard
-├── ml/models/ecm_b0005.json        # Identified ECM parameters
-├── notebooks/                      # Step-by-step Jupyter notebooks
-├── configs/                        # YAML configuration files
-├── data/exports/                   # Simulation data exports (CSV)
-├── app.py                          # Streamlit Cloud entrypoint
-└── requirements.txt
-```
+The capacity-based state-of-health (SOH) estimator computes measured cycle capacity divided by nominal capacity when suitable capacity observations are supplied. Without them, the initial SOH is an assumption. The remaining-useful-life (RUL) module uses a simple linear capacity trend after sufficient cycle observations; it is not a validated lifetime prediction. The CSV diagnostic does not infer SOH, RUL or weak-cell localisation from insufficient evidence.
 
----
+## Dashboard
 
-## Quick Start
+- **Overview:** pack values, estimated SOC uncertainty and simulated BMS state.
+- **Cells:** individual simulated cell values and series/parallel identification.
+- **Analysis:** time-based trends.
+- **Simulation:** topology, initial conditions and charge/discharge controls.
+- **Diagnostic:** measurement import, findings with evidence and limitations, report export.
+
+Square geometry, neutral normal-state graphics, textual anomaly indications and a persistent operator-status banner follow the project's [HMI philosophy](docs/HMI_PHILOSOPHY.md), inspired by ISA-101. No certified standards compliance is claimed.
+
+## Run locally
+
+Requires Python and Node.js/npm.
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Launch the dashboard
-streamlit run visualization/dashboard/app.py
-# or double-click lancer_dashboard.bat (Windows)
+python -m pip install -r requirements.txt
+npm --prefix web ci
 ```
 
----
+Start the Python API:
 
-## Notebooks
+```bash
+python -m uvicorn digital_twin.api.dashboard:app --host 127.0.0.1 --port 8000
+```
 
-| # | Topic |
-|---|-------|
-| 01 | Data exploration — NASA B0005 discharge cycles |
-| 02 | ECM 2RC simulation and parameter identification |
-| 03 | SOC estimation with Extended Kalman Filter |
+In another terminal:
 
----
+```bash
+npm --prefix web run dev
+```
 
-## Dataset
+Open the URL printed by Vite, normally http://localhost:5173. Vite proxies /api requests to the Python server. The local session API requires one worker because its simulation sessions are held in memory.
 
-**NASA Battery Dataset — cell B0005** (NASA PCoE, 2007)
-- Chemistry: LCO/NMC 18650
-- Nominal capacity: 2.0 Ah
-- Protocol: 1C charge/discharge cycles at 25 °C
-- Used for: ECM identification (R₀, R₁, C₁, R₂, C₂, OCV polynomial)
+For the original interface:
 
----
+```bash
+streamlit run visualization/dashboard/app.py
+```
 
-## Simulation results (4S×4P, 40 °C, 1C discharge, 180 s)
+## Telemetry CSV
 
-| Metric | Initial | Final |
-|--------|---------|-------|
-| SOC | 100.0 % | 94.93 % |
-| V_pack | 16.20 V | 15.49 V |
-| V_cell | 4.050 V | 3.870 V |
-| T_max | 40.000 °C | 40.008 °C |
-| SOH (after 3 cycles) | — | 97.73 % |
+Required columns:
 
----
+```csv
+time_s,pack_voltage_v,pack_current_a
+0,400,10
+60,398,10
+```
 
-## Tech stack
+Optional columns: temperature_c, soc_pct, cell_min_v, cell_max_v. Supply both cell-voltage columns together. Choose the current sign convention explicitly. Timestamps must increase strictly, values must be finite, and units must match the column names.
 
-`Python` `Streamlit` `FastAPI` `NumPy` `Pandas` `Plotly` `PyYAML`
+Integrated charge and energy describe the imported window, not automatically total capacity or SOH. Gaps are reported, but values between measurements are interpolated. The included example is synthetic and is labelled accordingly.
 
----
+See [diagnostic scope and source catalogue](docs/EV_DIAGNOSTIC.md). Tesla, BMW and other source references are research candidates; their presence in the catalogue does not mean their archives are integrated or their vehicles are calibrated. No OBD/CAN connection or vehicle control is implemented.
 
-## Deployment
+## Validation
 
-Dashboard live on **Streamlit Community Cloud** — topology (Ns, Np),
-temperature and C-rate are fully interactive.
+| Check | Recorded result |
+|---|---|
+| Python suite | 39 tests passed at the deployed version |
+| Frontend | TypeScript/Vite production build passed |
+| Measured-data benchmark | 636 NASA discharge cycles, four laboratory cells, 185,721 samples |
+| Integrated charge versus NASA capacity labels | Mean absolute difference 0.01303 Ah; maximum 0.02802 Ah |
+| Robustness | Current-noise scenarios across 20 seeds, sign invariance, sampling gaps, malformed/non-finite data and checkpoint validation |
+| Browser checks | Desktop/mobile diagnostic, invalid import, report export; no horizontal overflow or JavaScript errors observed |
+| Production checks | API health, simulation continuation, diagnostic energy calculation and square CSS verified |
 
-## New web IHM (V2)
+These are numerical and software checks. The benchmark has no independent SOC ground truth or annotated vehicle faults. Capacity-label differences may reflect different integration windows and end-of-discharge criteria. Passing tests does not establish field diagnostic reliability.
 
-React/TypeScript dashboard connected to an isolated FastAPI simulation session.
-See [setup and limitations](docs/DASHBOARD_V2.md) and
-[industry review and contribution opportunities](docs/INDUSTRIAL_CONTRIBUTION.md).
-The existing Streamlit entrypoint remains available.
+Reproduce the checks:
+
+```bash
+python -m pip install pytest httpx
+python -m pytest -q
+python -m validation.benchmark
+npm --prefix web run build
+```
+
+[Benchmark results](validation/nasa_results.json) include the dataset fingerprint and per-cell aggregates. See the [validation report](docs/ENGINEERING_VALIDATION.md). No complete lint/coverage gate or GitHub CI pipeline is currently configured.
+
+## Repository map
+
+| Path | Purpose |
+|---|---|
+| web/ | React/TypeScript interface |
+| digital_twin/core/twin_engine.py | Simulation and estimator orchestration |
+| digital_twin/api/dashboard.py | Local session API and CSV diagnostics |
+| digital_twin/api/serverless.py | Stateless simulation transport for Vercel |
+| api/index.py | Hosted API entrypoint |
+| estimation/ | SOC EKF and capacity-based SOH/RUL modules |
+| simulation/ | Pack electrical and thermal model |
+| diagnostics/ | CSV analysis, NASA adapter and source catalogue |
+| validation/ | Reproducible measured-data benchmark |
+| tests/ | API, numerical and robustness tests |
+| ml/models/ecm_b0005.json | Existing NASA B0005 ECM parameter set |
+| data/processed/ | Processed NASA laboratory datasets |
+| notebooks/ | Original exploration and modelling notebooks |
+| visualization/dashboard/ | Original Streamlit interface |
+| docs/ | Scope, architecture, HMI philosophy and validation |
+| vercel.json | Integrated frontend/API deployment configuration |
+
+## Deployment and limitations
+
+Live: **https://battery-twin-birane.vercel.app**
+
+The hosted simulation exchanges validated JSON checkpoints with the client instead of relying on durable process memory. Checkpoints are editable simulation inputs, not authenticated measurement evidence. History is kept in the browser tab and is lost on reload; export it to retain it. Simulation is limited to 20,000 seconds.
+
+The local CSV limit is 5 MB / 20,000 rows; the hosted platform's 4.5 MB request-body limit can reject smaller CSVs after JSON encoding. The current production function uses a reduced Python dependency set; research/Streamlit dependencies remain in requirements.txt. See [setup and deployment details](docs/DASHBOARD_V2.md).
+
+## Industrial direction
+
+Current uses: laboratory trial comparison, teaching, model exploration and descriptive telemetry review. Vehicle maintenance, second-life assessment and fleet monitoring require further datasets, calibrated models, independently documented reference measurements and annotated faults.
+
+See [industrial context and contribution opportunities](docs/INDUSTRIAL_CONTRIBUTION.md). Priorities include native dataset adapters, validation outside calibration data, sensor-bias assessment and explicit out-of-domain detection.
+
+Engineering verification was informed by [affaan-m/ECC verification-loop](https://github.com/affaan-m/ECC/blob/main/skills/verification-loop/SKILL.md). No ECC hooks or executable framework were installed.
+
+## Technology
+
+Python · FastAPI · NumPy · Pandas · React · TypeScript · Vite · Vercel  
+Legacy/research: Streamlit · Plotly · Jupyter · PyArrow
