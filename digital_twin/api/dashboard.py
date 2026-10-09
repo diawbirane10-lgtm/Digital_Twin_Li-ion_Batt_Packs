@@ -116,3 +116,28 @@ def advance(key: str, request: Advance):
 def delete(key: str):
     with lock: sessions.pop(key,None)
     return {'deleted':True}
+
+# Telemetry analysis is independent from the NASA simulation model.
+from diagnostics.telemetry import analyse_csv
+
+class DiagnosticRequest(BaseModel):
+    csv_text: str = Field(..., min_length=1, max_length=5_000_000)
+    current_convention: Literal['positive_discharge','negative_discharge']
+    temperature_threshold_c: float = Field(55, ge=-20, le=100)
+    cell_spread_threshold_v: float = Field(0.1, ge=0.001, le=2)
+    vehicle: str = Field('Non précisé', max_length=160)
+    source: str = Field('Import utilisateur', max_length=500)
+    data_kind: Literal['measured','synthetic'] = 'measured'
+
+@app.get('/diagnostics/sources')
+def diagnostic_sources():
+    return json.loads((ROOT / 'diagnostics/sources.json').read_text())
+
+@app.post('/diagnostics/analyse')
+def diagnostic_analysis(request: DiagnosticRequest):
+    try:
+        return analyse_csv(request.csv_text, request.current_convention,
+            {'temperature_c':request.temperature_threshold_c,'cell_spread_v':request.cell_spread_threshold_v},
+            {'vehicle':request.vehicle,'source':request.source,'data_kind':request.data_kind})
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error

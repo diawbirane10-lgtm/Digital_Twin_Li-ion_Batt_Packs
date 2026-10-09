@@ -17,13 +17,27 @@ import {
   Sun,
   Moon,
   PlugZap,
+  Stethoscope,
 } from "lucide-react";
 import { request, type Config, type Snapshot } from "./api";
 import Chart, { metrics, type Metric } from "./components/Chart";
 import Pack from "./components/Pack";
+import Diagnostic from "./components/Diagnostic";
 const initial: Config = { ns: 12, np: 4, temperature: 25, soc: 1 };
-const pages = ["Vue d’ensemble", "Cellules", "Analyse", "Simulation"];
-const icons = [LayoutDashboard, Grid2X2, ChartNoAxesCombined, FlaskConical];
+const pages = [
+  "Vue d’ensemble",
+  "Cellules",
+  "Analyse",
+  "Simulation",
+  "Diagnostic",
+];
+const icons = [
+  LayoutDashboard,
+  Grid2X2,
+  ChartNoAxesCombined,
+  FlaskConical,
+  Stethoscope,
+];
 function exportCSV(data: Snapshot) {
   const fields = [
     "timestamp",
@@ -332,6 +346,7 @@ export default function App() {
                 className={page === i ? "active" : ""}
                 onClick={() => {
                   setPage(i);
+                  if (i === 4) setRunning(false);
                   setMenu(false);
                 }}
               >
@@ -342,8 +357,16 @@ export default function App() {
           })}
         </nav>
         <div className="sidebar-bottom">
-          <span>Li-ion 18650 · NASA B0005</span>
-          <span>ECM 2RC · Estimation EKF</span>
+          <span>
+            {page === 4
+              ? "Mesures cellule · module · véhicule"
+              : "Li-ion 18650 · NASA B0005"}
+          </span>
+          <span>
+            {page === 4
+              ? "Diagnostic traçable sur fichier"
+              : "ECM 2RC · Estimation EKF"}
+          </span>
           <a
             href="https://github.com/diawbirane10-lgtm/Digital_Twin_Li-ion_Batt_Packs"
             target="_blank"
@@ -367,7 +390,15 @@ export default function App() {
             <div>
               <h1>{pages[page]}</h1>
               <p>
-                Jumeau numérique <span>· Li-ion 18650</span>
+                {page === 4 ? (
+                  <>
+                    Télémétrie batterie <span>· Analyse multi-marques</span>
+                  </>
+                ) : (
+                  <>
+                    Jumeau numérique <span>· Li-ion 18650</span>
+                  </>
+                )}
               </p>
             </div>
           </div>
@@ -407,60 +438,62 @@ export default function App() {
             </button>
           </div>
         )}
-        <div className="metrics">
-          {[
-            {
-              label: "Charge (SOC)",
-              value: s ? (s.soc * 100).toFixed(1) : "—",
-              unit: "%",
-              Icon: Battery,
-              detail: s
-                ? `Incertitude σ ${(s.soc_std * 100).toFixed(2)} %`
-                : "Estimation Kalman",
-            },
-            {
-              label: "Santé (SOH)",
-              value: s ? (s.soh * 100).toFixed(2) : "—",
-              unit: "%",
-              Icon: HeartPulse,
-              detail: data?.cycle_count
-                ? `${data.cycle_count} cycles de capacité disponibles`
-                : "Hypothèse initiale · non mesurée",
-            },
-            {
-              label: "Tension pack",
-              value: s ? s.pack_voltage.toFixed(2) : "—",
-              unit: "V",
-              Icon: Zap,
-              detail: data
-                ? `${data.configuration.ns}S × ${data.configuration.np}P · ${data.cells.length} cellules`
-                : "Topologie configurable",
-            },
-            {
-              label: "Température max",
-              value: s ? s.T_max.toFixed(2) : "—",
-              unit: "°C",
-              Icon: Thermometer,
-              detail: s
-                ? `Déséquilibre SOC ${(s.soc_imbalance * 100).toFixed(3)} %`
-                : "Modèle thermique",
-            },
-          ].map((m) => (
-            <section className="metric" key={m.label}>
-              <div className="metric-icon">
-                <m.Icon size={23} />
-              </div>
-              <div>
-                <h2>{m.label}</h2>
-                <strong>
-                  {m.value}
-                  <small>{m.unit}</small>
-                </strong>
-                <p>{m.detail}</p>
-              </div>
-            </section>
-          ))}
-        </div>
+        {page !== 4 && (
+          <div className="metrics">
+            {[
+              {
+                label: "Charge (SOC)",
+                value: s ? (s.soc * 100).toFixed(1) : "—",
+                unit: "%",
+                Icon: Battery,
+                detail: s
+                  ? `Incertitude σ ${(s.soc_std * 100).toFixed(2)} %`
+                  : "Estimation Kalman",
+              },
+              {
+                label: "Santé (SOH)",
+                value: s ? (s.soh * 100).toFixed(2) : "—",
+                unit: "%",
+                Icon: HeartPulse,
+                detail: data?.cycle_count
+                  ? `${data.cycle_count} cycles de capacité disponibles`
+                  : "Hypothèse initiale · non mesurée",
+              },
+              {
+                label: "Tension pack",
+                value: s ? s.pack_voltage.toFixed(2) : "—",
+                unit: "V",
+                Icon: Zap,
+                detail: data
+                  ? `${data.configuration.ns}S × ${data.configuration.np}P · ${data.cells.length} cellules`
+                  : "Topologie configurable",
+              },
+              {
+                label: "Température max",
+                value: s ? s.T_max.toFixed(2) : "—",
+                unit: "°C",
+                Icon: Thermometer,
+                detail: s
+                  ? `Déséquilibre SOC ${(s.soc_imbalance * 100).toFixed(3)} %`
+                  : "Modèle thermique",
+              },
+            ].map((m) => (
+              <section className="metric" key={m.label}>
+                <div className="metric-icon">
+                  <m.Icon size={23} />
+                </div>
+                <div>
+                  <h2>{m.label}</h2>
+                  <strong>
+                    {m.value}
+                    <small>{m.unit}</small>
+                  </strong>
+                  <p>{m.detail}</p>
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
         {page === 0 && (
           <div className="dashboard-grid">
             <div>
@@ -624,6 +657,7 @@ export default function App() {
             </div>
           </div>
         )}
+        {page === 4 && <Diagnostic />}
         <footer>
           Battery Twin <span>·</span> Simulation physique & estimation d’état{" "}
           <span>·</span> Résultats exploratoires

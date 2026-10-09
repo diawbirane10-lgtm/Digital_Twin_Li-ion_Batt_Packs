@@ -75,3 +75,10 @@ réutiliser leurs anciens graphiques ou performances.
 La V2 est une implémentation spécifique au domaine batterie, inspirée par les
 structures sobres de Shadcn Admin; aucun code de template n’est recopié.
 Lucide React fournit les icônes (licence ISC).
+
+## Diagnostic EV sur télémétrie importée
+
+Le nouveau menu Diagnostic est indépendant du simulateur NASA. Il permet
+l’analyse CSV et l’export d’un rapport traçable. Voir [périmètre, données et
+sources multi-marques](EV_DIAGNOSTIC.md). Le catalogue référence les sources;
+il ne prétend pas qu’elles sont téléchargées ou que leurs véhicules sont calibrés.

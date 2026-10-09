@@ -895,3 +895,134 @@ footer {
     box-shadow: 15px 0 50px #0003;
   }
 }
+
+.diagnostic-intro {
+  margin: 0 0 22px;
+}
+.diagnostic-intro h2 {
+  font-size: 23px;
+  letter-spacing: -0.7px;
+}
+.diagnostic-intro p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 850px;
+}
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 22px;
+  border: 1px dashed #7ebeb7;
+  border-radius: 8px;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: 14px;
+  font-weight: 600;
+}
+.text-label {
+  display: block;
+  font-size: 13px;
+  margin: 20px 0;
+}
+.text-label textarea {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    12px/1.7 ui-monospace,
+    monospace;
+  resize: vertical;
+}
+.source-list article {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+.source-list h3 {
+  font-size: 15px;
+  margin: 0 0 9px;
+}
+.source-list a {
+  text-decoration: none;
+  color: var(--teal);
+}
+.source-list p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.source-list strong {
+  font-size: 12px;
+  font-weight: 550;
+}
+.findings {
+  display: grid;
+  gap: 14px;
+}
+.finding {
+  padding: 18px;
+  border-left: 3px solid var(--teal);
+  background: var(--teal-soft);
+  border-radius: 5px;
+}
+.finding.warning {
+  border-color: #cf8b28;
+  background: color-mix(in srgb, var(--surface) 90%, #e7a144);
+}
+.finding h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.finding p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.report-origin {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.diagnostic-metrics .metric {
+  min-height: 105px;
+}
+.caption code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  .source-list article {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .diagnostic-metrics .metric strong {
+    font-size: 20px;
+  }
+}
+
+.controls .form-row select {
+  min-width: 132px;
+}
+.diagnostic-intro + .dashboard-grid .form-row select {
+  width: 190px;
+}
+@media (max-width: 650px) {
+  .diagnostic-intro + .dashboard-grid .form-row select {
+    width: 170px;
+  }
+}
