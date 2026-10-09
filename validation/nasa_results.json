@@ -1,0 +1,38 @@
+{
+  "dataset_sha256": "7c00323b8cd5ced6825bc57ae62de0603e113fff1e008d1fe626026acc62733f",
+  "cells": [
+    "B0005",
+    "B0006",
+    "B0007",
+    "B0018"
+  ],
+  "discharge_cycles": 636,
+  "samples": 185721,
+  "max_numerical_reference_error_ah": 6.207129140456402e-05,
+  "capacity_label_mae_ah": 0.013029627419299502,
+  "capacity_label_max_error_ah": 0.028021506584299916,
+  "limitations": [
+    "Numerical reference uses the same current measurements, not independent sensor accuracy.",
+    "NASA capacity labels can use a different integration window/end-of-discharge criterion.",
+    "Laboratory cells do not validate an OEM vehicle diagnostic.",
+    "No independently measured SOC or fault labels in this benchmark."
+  ],
+  "per_cell": {
+    "B0005": {
+      "cycles": 168,
+      "capacity_label_mae_ah": 0.003335340941955376
+    },
+    "B0006": {
+      "cycles": 168,
+      "capacity_label_mae_ah": 0.013819789479054947
+    },
+    "B0007": {
+      "cycles": 168,
+      "capacity_label_mae_ah": 0.021477754469827248
+    },
+    "B0018": {
+      "cycles": 132,
+      "capacity_label_mae_ah": 0.013609987704649775
+    }
+  }
+}

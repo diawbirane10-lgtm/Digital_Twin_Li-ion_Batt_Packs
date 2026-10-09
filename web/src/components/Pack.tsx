@@ -7,9 +7,6 @@ export default function Pack({ data }: { data: Snapshot | null }) {
   const [selected, setSelected] = useState(0);
   const cell = data?.cells.find((c) => c.id === selected);
   const value = (c: Cell) => (metric === "soc" ? c.soc * 100 : c[metric]);
-  const vals = data?.cells.map(value) || [];
-  const min = Math.min(...vals),
-    max = Math.max(...vals);
   const ns = data?.configuration.ns || 12,
     np = data?.configuration.np || 4;
   return (
@@ -47,17 +44,11 @@ export default function Pack({ data }: { data: Snapshot | null }) {
               .slice()
               .sort((a, b) => a.col - b.col || a.row - b.row)
               .map((c) => {
-                const fraction =
-                  metric === "soc"
-                    ? c.soc
-                    : (value(c) - min) / Math.max(max - min, 0.1);
+                const abnormal = c.temperature > 55 || c.voltage > 4.25 || c.voltage < 2.45;
                 return (
                   <button
                     key={c.id}
-                    className={`cell ${selected === c.id ? "selected" : ""}`}
-                    style={{
-                      background: `hsl(${metric === "temperature" ? 40 - 35 * fraction : 170},${metric === "temperature" ? 75 : 45}%,${92 - 25 * fraction}%)`,
-                    }}
+                    className={`cell ${selected === c.id ? "selected" : ""} ${abnormal ? "abnormal" : ""}`}
                     onClick={() => setSelected(c.id)}
                     aria-label={`Cellule S${c.row + 1} P${c.col + 1}, ${value(c).toFixed(2)}`}
                   >
@@ -65,7 +56,7 @@ export default function Pack({ data }: { data: Snapshot | null }) {
                       S{c.row + 1}·P{c.col + 1}
                     </span>
                     <strong>
-                      {value(c).toFixed(metric === "voltage" ? 2 : 1)}
+                      {abnormal ? "⚠ " : ""}{value(c).toFixed(metric === "voltage" ? 2 : 1)}
                     </strong>
                   </button>
                 );

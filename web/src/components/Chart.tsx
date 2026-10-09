@@ -5,10 +5,10 @@ export const metrics: Record<
   Metric,
   { label: string; unit: string; color: string }
 > = {
-  soc: { label: "Charge estimée", unit: "%", color: "#0d9488" },
-  pack_voltage: { label: "Tension pack", unit: "V", color: "#5472dc" },
-  T_max: { label: "Température maximale", unit: "°C", color: "#e59135" },
-  current: { label: "Courant pack", unit: "A", color: "#9470ce" },
+  soc: { label: "Charge estimée", unit: "%", color: "#536577" },
+  pack_voltage: { label: "Tension pack", unit: "V", color: "#536577" },
+  T_max: { label: "Température maximale", unit: "°C", color: "#536577" },
+  current: { label: "Courant pack", unit: "A", color: "#536577" },
 };
 export default function Chart({
   history,

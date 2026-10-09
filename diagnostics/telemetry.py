@@ -18,6 +18,8 @@ def positive_area(a, b, hours):
 def analyse_csv(text: str, current_convention: str, thresholds: dict, metadata: dict):
     if len(text.encode('utf-8')) > 5_000_000:
         raise ValueError('Fichier limité à 5 Mo.')
+    if current_convention not in ('positive_discharge', 'negative_discharge'):
+        raise ValueError('Convention de courant inconnue.')
     reader = csv.DictReader(io.StringIO(text.lstrip('\ufeff')))
     headers = reader.fieldnames or []
     if not all(k in headers for k in REQUIRED):
@@ -26,6 +28,8 @@ def analyse_csv(text: str, current_convention: str, thresholds: dict, metadata: 
     rows = []
     for index, raw in enumerate(reader, 2):
         if index > 20001: raise ValueError('Maximum 20 000 lignes.')
+        if None in raw or any(value is None for value in raw.values()):
+            raise ValueError(f'Ligne {index} : nombre de champs différent des en-têtes.')
         row = {}
         for key in REQUIRED + OPTIONAL:
             if key not in headers: continue

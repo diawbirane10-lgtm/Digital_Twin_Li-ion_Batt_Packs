@@ -1026,3 +1026,18 @@ footer {
     width: 170px;
   }
 }
+
+/* Operator palette: normal values stay neutral; amber marks abnormal states. */
+:root { --teal: #465b6b; --teal-soft: #edf0f2; --muted: #596777; }
+.brand > svg, .metric svg, .bms-status svg { color: #667789; }
+nav button.active { background: #344657; }
+.connection, .bms-status { background: var(--surface); color: var(--text); border-color: var(--border); }
+.connection i, .chart-footer i { background: #667789; }
+.cell { background: #e5e9ed; color: #263443; }
+.cell.abnormal { background: #fff0cc; color: #734800; border: 2px solid #ad7000; }
+.operator-status { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding: 14px 18px; margin-bottom: 20px; border: 1px solid var(--border); border-left: 4px solid #667789; background: var(--surface); font-size: 14px; }
+.operator-status span { color: var(--muted); }
+.operator-status.attention { border-left-color: #ad7000; }
+[data-theme="dark"] .cell { background: #344252; color: #e7edf4; }
+[data-theme="dark"] .cell.abnormal { background: #59451f; color: #ffe0a0; }
+[data-theme="dark"] .connection, [data-theme="dark"] .bms-status { background: var(--surface); }

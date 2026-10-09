@@ -429,6 +429,10 @@ export default function App() {
             </button>
           </div>
         </header>
+        <section className={`operator-status ${error || s?.alerts.length || data?.stop_reason ? "attention" : ""}`} aria-label="État opérateur" aria-live="polite">
+          <strong>{page === 4 ? "Analyse hors ligne · télémétrie importée" : "Mode simulation · valeurs calculées"}</strong>
+          <span>{error ? "⚠ Connexion indisponible · valeurs affichées potentiellement anciennes" : page === 4 ? "Seuils analyste · aucune qualification constructeur" : !data ? "Données indisponibles" : s?.alerts.length ? `⚠ ${s.alerts.join(" · ")}` : data.stop_reason ? `⚠ Arrêt : ${data.stop_reason}` : "Aucune alerte BMS simulée · ne certifie pas la santé"}</span>
+        </section>
         {error && (
           <div className="error" role="alert">
             <PlugZap size={20} />
