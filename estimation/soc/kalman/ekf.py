@@ -55,6 +55,7 @@ class BatteryEKF:
 
     def reset(self, soc0: float = 1.0):
         """Réinitialise l'état de l'EKF."""
+        self._current_A = 0.0
         self.x = np.array([[soc0], [0.0], [0.0]])   # [SOC, Vc1, Vc2]
         self.P = np.diag([1e-3, 1e-3, 1e-3])        # Covariance initiale
 
@@ -62,6 +63,7 @@ class BatteryEKF:
         """Étape de prédiction (modèle ECM discret)."""
         if dt <= 0:
             return
+        self._current_A = current_A
         soc, vc1, vc2 = self.x.flatten()
         tau1 = max(self.R1 * self.C1, 1e-9)
         tau2 = max(self.R2 * self.C2, 1e-9)
@@ -90,11 +92,8 @@ class BatteryEKF:
 
         # Tension prédite par le modèle
         ocv_val  = float(self._ocv(soc))
-        V_pred   = ocv_val + self.R0 * 0.0 + vc1 + vc2  # I déjà intégré dans Vc
-        # Note : on utilise la tension OCV + Vc (R0*I est dans la prédiction)
-
-        # Innovation
-        y = V_measured - (ocv_val + vc1 + vc2)
+        V_pred = ocv_val + self.R0 * self._current_A + vc1 + vc2
+        y = V_measured - V_pred
 
         # Jacobien H = d(h)/d(x)  [1x3]
         docv_dsoc = float(self._ocv.deriv()(soc))
@@ -108,7 +107,9 @@ class BatteryEKF:
         self.x = self.x + K * y
         self.x[0, 0] = float(np.clip(self.x[0, 0], 0.0, 1.0))  # SOC ∈ [0,1]
         I3 = np.eye(3)
-        self.P = (I3 - K @ H) @ self.P
+        A = I3 - K @ H
+        self.P = A @ self.P @ A.T + K @ self.R_noise @ K.T
+        self.P = (self.P + self.P.T) / 2.0
 
     # ── Propriétés pratiques ────────────────────────────────────────────
 

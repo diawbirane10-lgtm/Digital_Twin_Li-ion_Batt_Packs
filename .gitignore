@@ -38,3 +38,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Web dashboard
+node_modules/
+web/dist/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.pytest_cache/
