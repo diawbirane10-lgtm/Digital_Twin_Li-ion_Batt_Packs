@@ -1,7 +1,7 @@
 numpy>=1.26
 pandas>=2.2
 plotly>=5.20
-streamlit>=1.33
+streamlit>=1.50
 pyyaml>=6.0
 fastapi>=0.110
 uvicorn>=0.29

@@ -2,9 +2,9 @@
 
 **Physics-based simulation · SOC estimation · Traceable battery-data analysis**
 
-**[Open the live dashboard](https://battery-twin-birane.vercel.app)**
+**Primary application: Streamlit** · [Alternative web dashboard](https://battery-twin-birane.vercel.app)
 
-Battery Twin combines a configurable lithium-ion pack simulator with an independent CSV telemetry-analysis workflow. The current web interface uses React/TypeScript and a Python FastAPI backend. The original Streamlit dashboard remains available.
+Battery Twin combines a configurable lithium-ion pack simulator with an independent CSV telemetry-analysis workflow. The primary application is Streamlit, rebuilt with square panels, operator-status information and simulation/diagnostic workflows. The React/TypeScript dashboard and Python FastAPI backend remain available as an alternative on Vercel.
 
 This is an engineering demonstrator. Laboratory validation does not establish vehicle-level diagnostic accuracy or OEM qualification.
 
@@ -38,7 +38,15 @@ python -m pip install -r requirements.txt
 npm --prefix web ci
 ```
 
-Start the Python API:
+Start the primary Streamlit application:
+
+```bash
+python -m streamlit run app.py
+```
+
+The existing Streamlit Cloud entrypoint remains app.py. If the hosted app tracks this repository's main branch, it can rebuild from the updated code without creating another app.
+
+For the alternative React interface, start the Python API:
 
 ```bash
 python -m uvicorn digital_twin.api.dashboard:app --host 127.0.0.1 --port 8000
@@ -52,7 +60,7 @@ npm --prefix web run dev
 
 Open the URL printed by Vite, normally http://localhost:5173. Vite proxies /api requests to the Python server. The local session API requires one worker because its simulation sessions are held in memory.
 
-For the original interface:
+The Streamlit dashboard can also be launched directly:
 
 ```bash
 streamlit run visualization/dashboard/app.py
@@ -78,7 +86,7 @@ See [diagnostic scope and source catalogue](docs/EV_DIAGNOSTIC.md). Tesla, BMW a
 
 | Check | Recorded result |
 |---|---|
-| Python suite | 39 tests passed at the deployed version |
+| Python suite | 41 tests passed, including primary Streamlit navigation, simulation reset and CSV diagnostics |
 | Frontend | TypeScript/Vite production build passed |
 | Measured-data benchmark | 636 NASA discharge cycles, four laboratory cells, 185,721 samples |
 | Integrated charge versus NASA capacity labels | Mean absolute difference 0.01303 Ah; maximum 0.02802 Ah |
@@ -116,13 +124,15 @@ npm --prefix web run build
 | ml/models/ecm_b0005.json | Existing NASA B0005 ECM parameter set |
 | data/processed/ | Processed NASA laboratory datasets |
 | notebooks/ | Original exploration and modelling notebooks |
-| visualization/dashboard/ | Original Streamlit interface |
+| visualization/dashboard/ | Primary Streamlit interface |
 | docs/ | Scope, architecture, HMI philosophy and validation |
 | vercel.json | Integrated frontend/API deployment configuration |
 
 ## Deployment and limitations
 
-Live: **https://battery-twin-birane.vercel.app**
+**Streamlit is the primary application**, with its existing app.py entrypoint preserved. The exact existing Streamlit Cloud URL is not recorded in this repository; no replacement URL is invented here.
+
+Alternative web application: **https://battery-twin-birane.vercel.app**
 
 The hosted simulation exchanges validated JSON checkpoints with the client instead of relying on durable process memory. Checkpoints are editable simulation inputs, not authenticated measurement evidence. History is kept in the browser tab and is lost on reload; export it to retain it. Simulation is limited to 20,000 seconds.
 
@@ -138,5 +148,6 @@ Engineering verification was informed by [affaan-m/ECC verification-loop](https:
 
 ## Technology
 
-Python · FastAPI · NumPy · Pandas · React · TypeScript · Vite · Vercel  
-Legacy/research: Streamlit · Plotly · Jupyter · PyArrow
+Python · FastAPI · NumPy · Pandas · React · TypeScript · Vite · Vercel
+Primary IHM: Streamlit · Plotly
+Research: Jupyter · PyArrow
