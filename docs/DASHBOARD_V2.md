@@ -82,3 +82,9 @@ Le nouveau menu Diagnostic est indépendant du simulateur NASA. Il permet
 l’analyse CSV et l’export d’un rapport traçable. Voir [périmètre, données et
 sources multi-marques](EV_DIAGNOSTIC.md). Le catalogue référence les sources;
 il ne prétend pas qu’elles sont téléchargées ou que leurs véhicules sont calibrés.
+
+## Déploiement Vercel intégré
+
+La configuration racine `vercel.json` construit web et expose `api/index.py`. Le build active `VITE_STATELESS_API=1`. L'API stateless transporte un checkpoint JSON validé : cellules, état et covariance Kalman ; aucun objet Python désérialisé et aucune session durable en mémoire. Les checkpoints sont des entrées de simulation modifiables par l'utilisateur, jamais des preuves de mesures ni des certificats. Historique conservé dans l'onglet, perdu au rechargement ; export CSV disponible. Limite 20 000 secondes simulées.
+
+Le déploiement autonome utilise uniquement numpy, pandas, pyyaml, fastapi et pydantic dans requirements.txt ; les dépendances Streamlit/Parquet de recherche restent dans le dépôt et ne sont pas embarquées dans la fonction. Limite d'import hébergé : payload Vercel 4,5 Mo, inférieure à la limite locale 5 Mo.

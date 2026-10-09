@@ -106,7 +106,7 @@ nav button {
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  border-radius: 7px;
+  border-radius: 0;
   min-height: 48px;
   font-size: 14px;
   font-weight: 550;
@@ -175,7 +175,7 @@ header p span {
   border: 1px solid #c8e5df;
   color: #08695d;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 12px;
   white-space: nowrap;
   font-weight: 600;
@@ -185,7 +185,7 @@ header p span {
   width: 8px;
   height: 8px;
   background: #57b755;
-  border-radius: 50%;
+  border-radius: 0;
   display: inline-block;
 }
 .connection.offline {
@@ -200,7 +200,7 @@ header p span {
 .icon {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 0;
   color: var(--text);
   min-height: 40px;
   padding: 9px 12px;
@@ -226,7 +226,7 @@ header p span {
 .metric {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 20px 16px;
   display: flex;
   gap: 15px;
@@ -237,7 +237,7 @@ header p span {
   color: var(--teal);
   width: 43px;
   height: 43px;
-  border-radius: 50%;
+  border-radius: 0;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -273,7 +273,7 @@ header p span {
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 20px;
   margin-bottom: 20px;
   min-width: 0;
@@ -306,7 +306,7 @@ select,
 input {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 0;
   color: var(--text);
   min-height: 39px;
   padding: 8px 10px;
@@ -359,7 +359,7 @@ select {
   background: var(--text);
   color: var(--surface);
   padding: 8px 12px;
-  border-radius: 5px;
+  border-radius: 0;
   font-size: 12px;
   pointer-events: none;
 }
@@ -435,7 +435,7 @@ legend {
   background: var(--teal);
   color: white;
   border: 0;
-  border-radius: 6px;
+  border-radius: 0;
   padding: 12px 13px;
   min-height: 44px;
   font-size: 12px;
@@ -483,7 +483,7 @@ legend {
   gap: 12px;
   background: var(--teal-soft);
   color: #08695d;
-  border-radius: 7px;
+  border-radius: 0;
   padding: 16px 13px;
 }
 .bms-status svg {
@@ -509,7 +509,7 @@ legend {
   position: relative;
   min-height: 48px;
   border: 1px solid #6eb8af;
-  border-radius: 5px;
+  border-radius: 0;
   color: #164c48;
   display: flex;
   flex-direction: column;
@@ -593,7 +593,7 @@ td {
   background: #fff0ed;
   color: #994739;
   font-size: 12px;
-  border-radius: 8px;
+  border-radius: 0;
   margin-bottom: 20px;
 }
 .error button {
@@ -601,7 +601,7 @@ td {
   border: 1px solid #eeb9b3;
   background: white;
   color: #994739;
-  border-radius: 5px;
+  border-radius: 0;
   padding: 8px;
 }
 footer {
@@ -915,7 +915,7 @@ footer {
   gap: 15px;
   padding: 22px;
   border: 1px dashed #7ebeb7;
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--teal-soft);
   color: var(--teal);
   font-size: 14px;
@@ -932,7 +932,7 @@ footer {
   margin-top: 10px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--bg);
   color: var(--text);
   font:
@@ -972,7 +972,7 @@ footer {
   padding: 18px;
   border-left: 3px solid var(--teal);
   background: var(--teal-soft);
-  border-radius: 5px;
+  border-radius: 0;
 }
 .finding.warning {
   border-color: #cf8b28;

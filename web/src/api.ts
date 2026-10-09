@@ -46,7 +46,7 @@ export interface Snapshot {
 const base =
   (import.meta as unknown as { env: Record<string, string> }).env
     .VITE_API_URL || "/api";
-export async function request<T>(
+async function http<T>(
   path: string,
   method = "GET",
   body?: unknown,
@@ -71,4 +71,21 @@ export async function request<T>(
     throw new Error(message);
   }
   return response.json() as Promise<T>;
+}
+
+const stateless = (import.meta as unknown as { env: Record<string, string> }).env.VITE_STATELESS_API === "1";
+let checkpoint: unknown = null;
+let configuration: unknown = null;
+let history: State[] = [];
+export async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
+  if (!stateless || !path.startsWith("/sessions")) return http<T>(path,method,body);
+  if (method === "DELETE") return {} as T;
+  const creating = path === "/sessions";
+  if (creating) { configuration = body; checkpoint = null; history = []; }
+  const result = await http<Snapshot & { checkpoint: unknown }>("/simulation", "POST", {configuration, checkpoint, step: creating ? undefined : body});
+  checkpoint = result.checkpoint;
+  history = [...history,...result.history].slice(-20000);
+  const stride = Math.max(1, Math.ceil(history.length/600));
+  const sampled = history.filter((_,i)=>i%stride===0 || i===history.length-1);
+  return {...result,history:sampled} as T;
 }
