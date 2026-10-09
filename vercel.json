@@ -1,0 +1,10 @@
+{
+  "buildCommand": "VITE_STATELESS_API=1 npm --prefix web run build",
+  "installCommand": "npm --prefix web ci",
+  "outputDirectory": "web/dist",
+  "functions": {"api/index.py": {"maxDuration": 60}},
+  "rewrites": [
+    {"source":"/api/(.*)","destination":"/api/index"},
+    {"source":"/((?!assets/).*)","destination":"/index.html"}
+  ]
+}

@@ -102,3 +102,10 @@ streamlit run visualization/dashboard/app.py
 
 Dashboard live on **Streamlit Community Cloud** — topology (Ns, Np),
 temperature and C-rate are fully interactive.
+
+## New web IHM (V2)
+
+React/TypeScript dashboard connected to an isolated FastAPI simulation session.
+See [setup and limitations](docs/DASHBOARD_V2.md) and
+[industry review and contribution opportunities](docs/INDUSTRIAL_CONTRIBUTION.md).
+The existing Streamlit entrypoint remains available.
